@@ -1,0 +1,52 @@
+
+-- For Age Classification
+AgeGroup = SWITCH(
+    TRUE(),
+    cust_detail[Customer_Age] < 30, "20-30",
+    cust_detail[Customer_Age] >= 30 && cust_detail[Customer_Age] < 40, "30-40",
+    cust_detail[Customer_Age] >= 40 && cust_detail[Customer_Age] < 50, "40-50",
+    cust_detail[Customer_Age] >= 50 && cust_detail[Customer_Age] < 60, "50-60",
+    cust_detail[Customer_Age] >= 60, "60+", 
+    "unknown"
+    )
+
+-- For Income classification 
+IncomeGroup = SWITCH(
+    TRUE(),
+    cust_detail[Income] < 35000, "Low",
+    cust_detail[Income] >= 35000 && cust_detail[Income] < 70000, "Med" ,
+    cust_detail[Income] >= 70000, "High",
+    "unkown"
+)
+
+-- for classidication of week (problem was like it was not in proper formate and not sorted so to sort that we can use =WeekNum in DAX)
+
+weeknum2 = WEEKNUM(cc_detail[Week_Start_Date])
+-- Because of unstructured data my weeks are not getting getting proper output. 
+
+Week_Sort = VALUE(SUBSTITUTE(cc_detail[Week_Num], "Week-", ""))
+
+
+-- (new meassure) For Current_Week_Rev
+
+Current_week_Rev = CALCULATE(
+    SUM(cc_detail[Revenue]),
+    FILTER(
+        ALL('cc_detail'),
+        'cc_detail' [Week_Sort] = MAX(cc_detail[Week_Sort])))
+
+
+-- For Previous_Week_Rev
+Previous_week_Rev = CALCULATE(
+    SUM(cc_detail[Revenue]),
+    FILTER(
+        ALL('cc_detail'),
+        'cc_detail' [Week_Sort] = MAX(cc_detail[Week_Sort])-1))
+
+-- Week on Week Rev
+
+wow_rev = DIVIDE(([Current_week_Rev] - [Previous_week_Rev]), [Previous_week_Rev])
+
+
+
+ 
